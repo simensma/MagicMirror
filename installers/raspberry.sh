@@ -40,6 +40,34 @@ function command_exists () { type "$1" &> /dev/null ;}
 echo -e "\e[96mUpdating packages ...\e[90m"
 sudo apt-get update || echo -e "\e[91mUpdate failed, carrying on installation ...\e[90m"
 
+if command_exists x11vnc; then
+    echo -e "\e[92mVNC Already exists!\e[0m"
+else
+    echo -e "\e[96mInstalling VNC ...\e[0m"
+
+    sudo apt-get --assume-yes install x11vnc || exit
+
+    x11vnc -storepasswd
+
+    mkdir ~/.config/autostart
+
+    echo "[Desktop Entry]
+    Encoding=UTF-8
+    Type=Application
+    Name=X11VNC
+    Comment=
+    Exec=x11vnc -forever -usepw -display :0 -ultrafilexfer
+    StartupNotify=false
+    Terminal=false
+    Hidden=false" > ~/.config/autostart/x11vnc.desktop
+
+    /usr/bin/x11vnc -forever -usepw -display :0 -ultrafilexfer
+
+    echo -e "\e[92mInstalled and started VNC!\e[0m"
+fi
+
+
+
 # Installing helper tools
 echo -e "\e[96mInstalling helper tools ...\e[90m"
 sudo apt-get --assume-yes install curl wget git build-essential unzip || exit
